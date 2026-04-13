@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
+import { registerUser } from "../../api/authApi";
+
 import api from "../../api/axiosInstance";
 import { useToast } from "../../context/ToastContext";
 
@@ -14,7 +16,7 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     try {
-      const res = await api.post("/auth/register", data);
+      const res = await registerUser(data);
 
       const { accessToken, role } = res.data;
 

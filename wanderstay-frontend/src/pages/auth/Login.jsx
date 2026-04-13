@@ -4,29 +4,37 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
-import api from "../../api/axiosInstance";
+import { loginUser } from "../../api/authApi";
 import { useToast } from "../../context/ToastContext";
 
 const Login = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   const navigate = useNavigate();
   const { showToast } = useToast();
 
   const onSubmit = async (data) => {
     try {
-      const res = await api.post("/auth/login", data);
+      const res = await loginUser(data);
 
-      const { accessToken, role } = res.data;
+      const { accessToken, role } = res;
 
+      // ✅ store auth data
       localStorage.setItem("token", accessToken);
       localStorage.setItem("role", role);
 
       showToast("Login successful", "success");
 
-      navigate("/"); // redirect home
+      navigate("/");
     } catch (err) {
+      console.error("Login error:", err);
+
       showToast(
-        err.response?.data?.message || "Login failed",
+        err.response?.data?.message || err.message || "Login failed",
         "error"
       );
     }
@@ -45,6 +53,7 @@ const Login = () => {
           name="email"
           register={register}
           error={errors.email}
+          rules={{ required: "Email is required" }}
         />
 
         <Input
@@ -53,6 +62,7 @@ const Login = () => {
           name="password"
           register={register}
           error={errors.password}
+          rules={{ required: "Password is required" }}
         />
 
         <Button type="submit">Login</Button>
